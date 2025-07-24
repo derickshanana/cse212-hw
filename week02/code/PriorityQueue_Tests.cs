@@ -1,43 +1,61 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-// TODO Problem 2 - Write and run test cases and fix the code to match requirements.
-
 [TestClass]
 public class PriorityQueueTests
 {
     [TestMethod]
-    // Scenario: Add 3 items with different priorities.
-    // Expected Result: Dequeue returns item with highest priority.
-    // Defect(s) Found: Logic error if priority comparison or loop is incorrect.
+    // Scenario: Enqueue three items with different priorities.
+    // Expected Result: Item with highest priority ("High") dequeued first.
+    // Defect(s) Found: None.
     public void TestPriorityQueue_1()
     {
         var pq = new PriorityQueue();
         pq.Enqueue("Low", 1);
-        pq.Enqueue("Medium", 3);
-        pq.Enqueue("High", 5);
+        pq.Enqueue("Medium", 2);
+        pq.Enqueue("High", 3);
 
-        var result = pq.Dequeue();
+        string result = pq.Dequeue();
         Assert.AreEqual("High", result);
     }
 
     [TestMethod]
-    // Scenario: Add 2 items with the same highest priority.
-    // Expected Result: The one added first should be returned (FIFO).
-    // Defect(s) Found: May return the later item incorrectly.
+    // Scenario: Enqueue multiple items with the same priority.
+    // Expected Result: Items dequeued in FIFO order among equals.
+    // Defect(s) Found: None.
     public void TestPriorityQueue_2()
     {
         var pq = new PriorityQueue();
-        pq.Enqueue("First", 4);
-        pq.Enqueue("Second", 4);
+        pq.Enqueue("First", 2);
+        pq.Enqueue("Second", 2);
+        pq.Enqueue("Third", 2);
 
-        var result = pq.Dequeue();
-        Assert.AreEqual("First", result);
+        Assert.AreEqual("First", pq.Dequeue());
+        Assert.AreEqual("Second", pq.Dequeue());
+        Assert.AreEqual("Third", pq.Dequeue());
     }
 
     [TestMethod]
-    // Scenario: Try to Dequeue from an empty queue.
-    // Expected Result: Should throw InvalidOperationException with correct message.
-    // Defect(s) Found: Wrong message or no exception.
+    // Scenario: Enqueue mix of priorities and test complex dequeue order.
+    // Expected Result: Dequeue order: Max1, Max2, Mid, Low.
+    // Defect(s) Found: None.
+    public void TestPriorityQueue_Mixed()
+    {
+        var pq = new PriorityQueue();
+        pq.Enqueue("Low", 1);
+        pq.Enqueue("Mid", 5);
+        pq.Enqueue("Max1", 10);
+        pq.Enqueue("Max2", 10);
+
+        Assert.AreEqual("Max1", pq.Dequeue());
+        Assert.AreEqual("Max2", pq.Dequeue());
+        Assert.AreEqual("Mid", pq.Dequeue());
+        Assert.AreEqual("Low", pq.Dequeue());
+    }
+
+    [TestMethod]
+    // Scenario: Attempt to dequeue from empty queue.
+    // Expected Result: InvalidOperationException with correct message.
+    // Defect(s) Found: None.
     public void TestPriorityQueue_Empty()
     {
         var pq = new PriorityQueue();
@@ -45,29 +63,11 @@ public class PriorityQueueTests
         try
         {
             pq.Dequeue();
-            Assert.Fail("Expected exception was not thrown.");
+            Assert.Fail("Expected exception not thrown.");
         }
         catch (InvalidOperationException ex)
         {
-            Assert.AreEqual("Queue is empty.", ex.Message);
+            Assert.AreEqual("The queue is empty.", ex.Message);
         }
-    }
-
-    [TestMethod]
-    // Scenario: Add multiple items and dequeue all to ensure order is preserved after multiple operations.
-    // Expected Result: Highest priority first, FIFO on tie.
-    // Defect(s) Found: Priority logic or order can fail if not implemented correctly.
-    public void TestPriorityQueue_MultipleDequeue()
-    {
-        var pq = new PriorityQueue();
-        pq.Enqueue("A", 2);
-        pq.Enqueue("B", 4);
-        pq.Enqueue("C", 4); // same priority as B
-        pq.Enqueue("D", 1);
-
-        Assert.AreEqual("B", pq.Dequeue()); // First of the two with priority 4
-        Assert.AreEqual("C", pq.Dequeue());
-        Assert.AreEqual("A", pq.Dequeue());
-        Assert.AreEqual("D", pq.Dequeue());
     }
 }

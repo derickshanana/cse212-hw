@@ -12,9 +12,8 @@ public class TakingTurnsQueueTests
     // run until the queue is empty
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
     // Defect(s) Found: 
-    // - The queue does not correctly remove people when their turns are used up.
-    // - Turns may not be decrementing properly.
-    // - People with remaining turns are not re-added as expected.
+    // - People with 1 turn left were still being re-enqueued instead of being removed.
+    // - Returned person’s Turns value was altered because original person was mutated before return.
     public void TestTakingTurnsQueue_FiniteRepetition()
     {
         var bob = new Person("Bob", 2);
@@ -44,11 +43,11 @@ public class TakingTurnsQueueTests
 
     [TestMethod]
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3)
-    // After running 5 times, add George with 3 turns.  Run until the queue is empty.
+    // After running 5 times, add George with 3 turns. Run until the queue is empty.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, George, Sue, Tim, George, Tim, George
-    // Defect(s) Found:
-    // - When a person is added mid-execution, they may not be enqueued correctly.
-    // - The re-enqueuing logic may not be handling new additions well.
+    // Defect(s) Found: 
+    // - People added mid-cycle like George were not rotating properly or were skipped too early.
+    // - Queue logic did not handle mid-sequence additions correctly with regard to turns.
     public void TestTakingTurnsQueue_AddPlayerMidway()
     {
         var bob = new Person("Bob", 2);
@@ -90,9 +89,9 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found:
-    // - Tim has 0 turns (infinite), but his turns are being changed or reduced.
-    // - Infinite turn logic is not preserved — the turns field is modified.
+    // Defect(s) Found: 
+    // - Infinite-turn people like Tim (0) had their Turns value mutated incorrectly.
+    // - Returned Tim had an incorrect (non-zero) Turns value after multiple calls.
     public void TestTakingTurnsQueue_ForeverZero()
     {
         var timTurns = 0;
@@ -123,9 +122,9 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Tim, Sue, Tim, Sue, Tim, Sue, Tim, Tim, Tim, Tim
-    // Defect(s) Found:
-    // - Tim starts with negative turns, but turns are being modified.
-    // - People with infinite turns should remain unmodified and always be enqueued again.
+    // Defect(s) Found: 
+    // - Infinite-turn person with negative value (Tim = -3) had their turns decremented.
+    // - The returned Tim had altered turn value instead of staying at -3.
     public void TestTakingTurnsQueue_ForeverNegative()
     {
         var timTurns = -3;
@@ -152,9 +151,9 @@ public class TakingTurnsQueueTests
     [TestMethod]
     // Scenario: Try to get the next person from an empty queue
     // Expected Result: Exception should be thrown with appropriate error message.
-    // Defect(s) Found:
-    // - If no exception is thrown when queue is empty, that's a defect.
-    // - Exception message must be exactly "No one in the queue."
+    // Defect(s) Found: 
+    // - Method did not throw any exception when queue was empty.
+    // - When it did throw, the message was incorrect.
     public void TestTakingTurnsQueue_Empty()
     {
         var players = new TakingTurnsQueue();
@@ -181,3 +180,4 @@ public class TakingTurnsQueueTests
         }
     }
 }
+
